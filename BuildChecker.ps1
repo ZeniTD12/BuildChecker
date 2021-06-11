@@ -27,6 +27,10 @@ $branches = $requestResult.Content | ConvertFrom-Json
 $i = 0
 foreach ($branch in $branches)
 {
+    #getting duration for build
+    $durationTimespan = (Get-Date -Date $branch.lastbuild.finishTime) - (Get-Date -Date $branch.lastbuild.startTime)
+    $duration = [math]::Round($durationTimespan.TotalSeconds)
+    
     #getting data about build logs
     $buildId = $branch.lastbuild.id
     $requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/builds/$buildId/downloads/logs" -Method "GET" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
@@ -35,10 +39,5 @@ foreach ($branch in $branches)
     $i++
 
     #echo build data
-    Write-Host $i "-" $branch.branch.name "build" $branch.lastbuild.status "in # seconds. Link to build logs:" $buildUri.uri
-    
-    #info about duration
-    #$startTime = 
-    #$duration = $branch.lastbuild.finishTime - $branch.lastbuild.startTime
-    #Write-Host $duration
+    Write-Host $i "-" $branch.branch.name "build" $branch.lastbuild.status "in $duration seconds. Link to build logs:" $buildUri.uri
 }
