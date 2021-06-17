@@ -79,7 +79,7 @@ switch ($reqOperation)
             }
             
             # pause output after each 10 builds
-            if (([math]::IEEERemainder($i,2) -eq 0) -and ($i -lt $branches.Count))
+            if (([math]::IEEERemainder($i,10) -eq 0) -and ($i -lt $branches.Count))
             {
                 Write-Host "Total number of branches is" $branches.Count ". Press any key to see next builds ..."
                 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
