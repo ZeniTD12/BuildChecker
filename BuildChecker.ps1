@@ -42,9 +42,7 @@ switch ($reqOperation)
         $i = 0
         foreach ($branch in $branches)
         {
-            #getting duration for build
-            $durationTimespan = (Get-Date -Date $branch.lastbuild.finishTime) - (Get-Date -Date $branch.lastbuild.startTime)
-            $duration = [math]::Round($durationTimespan.TotalSeconds)
+            $i++
             
             #getting data about build logs
             $buildId = $branch.lastbuild.id
@@ -53,13 +51,39 @@ switch ($reqOperation)
             {
                 $buildUri = $requestResult.Content | ConvertFrom-Json
             } else {
-                Write-Host "Data hasn't been received from App Center for branch" $branch.branch.name
+                Write-Host "Info about logs hasn't been received from App Center for branch" $branch.branch.name
             }
-                    
-            $i++
-        
-            #echo build data
-            Write-Host $i "-" $branch.branch.name "build" $branch.lastbuild.status "in $duration seconds. Link to build logs:" $buildUri.uri
+                  
+            # check build state, calculate duration and echo build data
+            switch ($branch.lastbuild.status)
+            {
+                "inProgress" {
+                    $durationTimespan = (Get-Date) - (Get-Date -Date $branch.lastbuild.startTime)
+                    $duration = [math]::Round($durationTimespan.TotalSeconds)
+                    Write-Host "--------------------------------------------------"
+                    Write-Host $i "-" $branch.branch.name "build is in status" $branch.lastbuild.status "for" $duration "seconds. Link to build logs:" $buildUri.uri
+                    Write-Host "--------------------------------------------------"
+                }
+                "notStarted" {
+                    Write-Host "--------------------------------------------------"
+                    Write-Host $i "-" $branch.branch.name "build is queued ( status -" $branch.lastbuild.status" ) since" (Get-Date -Date $branch.lastbuild.queueTime)
+                    Write-Host "--------------------------------------------------"
+                }
+                default {
+                    $durationTimespan = (Get-Date -Date $branch.lastbuild.finishTime) - (Get-Date -Date $branch.lastbuild.startTime)
+                    $duration = [math]::Round($durationTimespan.TotalSeconds)
+                    Write-Host "--------------------------------------------------"
+                    Write-Host $i "-" $branch.branch.name "build" $branch.lastbuild.status "in" $duration "seconds. Link to build logs:" $buildUri.uri
+                    Write-Host "--------------------------------------------------"
+                }
+            }
+            
+            # pause output after each 10 builds
+            if (([math]::IEEERemainder($i,2) -eq 0) -and ($i -lt $branches.Count))
+            {
+                Write-Host "Total number of branches is" $branches.Count ". Press any key to see next builds ..."
+                $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+            }
         }
     }
     "NewBuild" {
@@ -99,28 +123,4 @@ switch ($reqOperation)
     default {
         Write-Host "Unexpected operation was requested.`nUse 'GetStatus' to receive status of latest builds.`nUse 'NewBuild' to start new build."
     }
-}
-
-
-# getting branches info
-$requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/branches" -Method "GET" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
-$branches = $requestResult.Content | ConvertFrom-Json
-
-# echo state of branches
-$i = 0
-foreach ($branch in $branches)
-{
-    #getting duration for build
-    $durationTimespan = (Get-Date -Date $branch.lastbuild.finishTime) - (Get-Date -Date $branch.lastbuild.startTime)
-    $duration = [math]::Round($durationTimespan.TotalSeconds)
-    
-    #getting data about build logs
-    $buildId = $branch.lastbuild.id
-    $requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/builds/$buildId/downloads/logs" -Method "GET" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
-    $buildUri = $requestResult.Content | ConvertFrom-Json
-    
-    $i++
-
-    #echo build data
-    Write-Host $i "-" $branch.branch.name "build" $branch.lastbuild.status "in $duration seconds. Link to build logs:" $buildUri.uri
 }
