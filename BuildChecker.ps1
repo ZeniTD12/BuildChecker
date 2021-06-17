@@ -107,15 +107,16 @@ switch ($reqOperation)
         }
 
         $branchNum = Read-Host "Enter number of required branch"
-
         $branchForBuild = $branches[$branchNum - 1].branch.name
+        $branchForBuildURL = $branchForBuild -replace "/", "%2F"
         
         #starting build
-        $requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/branches/$branchForBuild/builds" -Method "POST" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
+        $requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/branches/$branchForBuildURL/builds" -Method "POST" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
 
         if (($requestResult.Content | ConvertFrom-Json).id -ne $null)
         {
-            Write-Host "New build in branch" $branchForBuild "has been started - Link"
+            $queueTime = Get-Date -Date ($requestResult.Content | ConvertFrom-Json).queueTime
+            Write-Host "New build in branch" $branchForBuild "has been started at" $queueTime
         } else {
             Write-Host "Build in branch" $branchForBuild "has not been started. Please check script output to identify reason of this"
         }
