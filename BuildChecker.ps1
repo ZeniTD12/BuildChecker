@@ -110,16 +110,32 @@ switch ($reqOperation)
         $branchForBuild = $branches[$branchNum - 1].branch.name
         $branchForBuildURL = $branchForBuild -replace "/", "%2F"
         
-        #starting build
-        $requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/branches/$branchForBuildURL/builds" -Method "POST" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
-
-        if (($requestResult.Content | ConvertFrom-Json).id -ne $null)
-        {
-            $queueTime = Get-Date -Date ($requestResult.Content | ConvertFrom-Json).queueTime
-            Write-Host "New build in branch" $branchForBuild "has been started at" $queueTime
-        } else {
-            Write-Host "Build in branch" $branchForBuild "has not been started. Please check script output to identify reason of this"
-        }
+        #confirmation and starting of build
+        $confirmation = Read-Host "New build will be started in branch" $branchForBuild ". Are you sure? (y/n)"
+        Do {
+            switch ($confirmation)
+            {
+                "y" {
+                    $requestResult = Invoke-WebRequest -Uri "https://api.appcenter.ms/v0.1/apps/$ownerName/$appName/branches/$branchForBuildURL/builds" -Method "POST" -Headers @{"Accept"="application/json"; "X-API-Token"=$token}
+                    
+                    if (($requestResult.Content | ConvertFrom-Json).id -ne $null)
+                    {
+                        $queueTime = Get-Date -Date ($requestResult.Content | ConvertFrom-Json).queueTime
+                        Write-Host "New build in branch" $branchForBuild "has been started at" $queueTime
+                    } else {
+                        Write-Host "Build in branch" $branchForBuild "has not been started. Please check script output to identify reason of this"
+                    }
+                    $finished = 1
+                }
+                "n" {
+                    Write-Host "Starting of build in branch" $branchForBuild "was canceled"
+                    $finished = 1
+                }
+                default {
+                    $confirmation = Read-Host "Invalid answer was received.`nNew build will be started in branch" $branchForBuild ". Are you sure? (y/n)"
+                }
+            }
+        } while ($finished -ne 1)
     }
     default {
         Write-Host "Unexpected operation was requested.`nUse 'GetStatus' to receive status of latest builds.`nUse 'NewBuild' to start new build."
