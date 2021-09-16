@@ -47,39 +47,6 @@ var token = "035be1cc469a116723cc20d78ba57a894cec1640";
 //https://github.com/ZeniTD12/My-New-Test-App
 //https://appcenter.ms/users/ZeniTD12/apps/My-New-Test-App/build/branches
 //https://github.com/ZeniTD12/BuildChecker/blob/main/BuildChecker.ps1
-//---
-//async function getBranches(ownerName:string, appName:string, token:string) {
-//    let urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
-//    let res = await axios({
-//            method: 'get',
-//            url: urlBranches,
-//            headers: {
-//                'Content-Type': 'application/json',
-//                'X-API-Token': token
-//            }
-//    });
-//
-//    res.data.forEach((branchData:any) => {
-//        console.log(branchData.branch.name);
-//    });
-//};
-//---
-//getBranches(ownerName, appName, token);
-//async function startBuilds(ownerName:string, appName:string, token:string) {
-//    let urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
-//    let res = await axios({
-//            method: 'get',
-//            url: urlBranches,
-//            headers: {
-//                'Content-Type': 'application/json',
-//                'X-API-Token': token
-//            }
-//    });
-//
-//    res.data.forEach((branchData:any) => {
-//        console.log(branchData.branch.name);
-//    });
-//}
 function getBranches(ownerName, appName, token) {
     return __awaiter(this, void 0, void 0, function () {
         var urlBranches;
@@ -87,6 +54,7 @@ function getBranches(ownerName, appName, token) {
             switch (_a.label) {
                 case 0:
                     urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
+                    console.log("List of actual branches:");
                     return [4 /*yield*/, (0, axios_1["default"])({
                             method: 'get',
                             url: urlBranches,
@@ -100,6 +68,7 @@ function getBranches(ownerName, appName, token) {
                                 console.log(branchData.branch.name);
                             });
                         })["catch"](function (error) {
+                            console.log("Error with receiving list of branches has been occurred. Check message below for details.");
                             console.log(error.toJSON().stack);
                         })];
                 case 1:
@@ -110,7 +79,7 @@ function getBranches(ownerName, appName, token) {
     });
 }
 ;
-//getBranches(ownerName, appName, token);
+// getBranches(ownerName, appName, token);
 function startBuilds(ownerName, appName, token) {
     return __awaiter(this, void 0, void 0, function () {
         var urlBranches;
@@ -130,10 +99,8 @@ function startBuilds(ownerName, appName, token) {
                             return __awaiter(this, void 0, void 0, function () {
                                 return __generator(this, function (_a) {
                                     responce.data.forEach(function (branchData) {
-                                        //console.log("Builds will be started here");
                                         var branch = branchData.branch.name;
                                         var branchWithoutSlash = branch.replace(/\//gi, "%2F");
-                                        //console.log(branch);
                                         function startBuildinBranch(ownerName, appName, token, branch, branchWithoutSlash) {
                                             return __awaiter(this, void 0, void 0, function () {
                                                 var urlBuildBranch;
@@ -152,9 +119,8 @@ function startBuilds(ownerName, appName, token) {
                                                                     .then(function (responce) {
                                                                     console.log("--------------------------------------------------");
                                                                     console.log("Build in branch " + branch + " has been successfully started");
-                                                                    //console.log(responce);
                                                                     console.log("Build number is " + responce.data.buildNumber);
-                                                                    console.log("Builds URL - https://appcenter.ms/users/" + ownerName + "/apps/" + appName + "/build/branches/" + branch);
+                                                                    console.log("Builds URL - https://appcenter.ms/users/" + ownerName + "/apps/" + appName + "/build/branches/" + branchWithoutSlash);
                                                                     console.log("--------------------------------------------------");
                                                                 })["catch"](function (error) {
                                                                     console.log("--------------------------------------------------");
@@ -176,6 +142,7 @@ function startBuilds(ownerName, appName, token) {
                                 });
                             });
                         })["catch"](function (error) {
+                            console.log("Error with receiving list of branches has been occurred. Check message below for details.");
                             console.log(error.toJSON().stack);
                         })];
                 case 1:
@@ -186,4 +153,100 @@ function startBuilds(ownerName, appName, token) {
     });
 }
 ;
-startBuilds(ownerName, appName, token);
+// startBuilds(ownerName, appName, token);
+function getBuilds(ownerName, appName, token) {
+    return __awaiter(this, void 0, void 0, function () {
+        var urlBranches, index;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
+                    index = 0;
+                    return [4 /*yield*/, (0, axios_1["default"])({
+                            method: 'get',
+                            url: urlBranches,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-Token': token
+                            }
+                        })
+                            .then(function (responce) {
+                            responce.data.forEach(function (branchData) {
+                                function getLogsLink(ownerName, appName, token) {
+                                    return __awaiter(this, void 0, void 0, function () {
+                                        var urlBuildLogs;
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0:
+                                                    urlBuildLogs = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/builds/" + branchData.lastBuild.id + "/downloads/logs";
+                                                    return [4 /*yield*/, (0, axios_1["default"])({
+                                                            method: 'get',
+                                                            url: urlBuildLogs,
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                'X-API-Token': token
+                                                            }
+                                                        })
+                                                            .then(function (responce) {
+                                                            // console.log(responce.data.uri);
+                                                            var startTime = null;
+                                                            var queuedTime = null;
+                                                            var finishTime = null;
+                                                            var durationSec = null;
+                                                            index = index + 1;
+                                                            switch (branchData.lastBuild.status) {
+                                                                case "inProgress":
+                                                                    startTime = new Date(branchData.lastBuild.startTime);
+                                                                    durationSec = Math.floor((Date.now() - startTime.getTime()) / 1000);
+                                                                    console.log("--------------------------------------------------");
+                                                                    console.log(index + " - Branch " + branchData.branch.name + " - latest build is in status " + branchData.lastBuild.status + " for " + durationSec + " seconds. Links to build logs: " + responce.data.uri + ".");
+                                                                    console.log("--------------------------------------------------");
+                                                                    break;
+                                                                case "notStarted":
+                                                                    queuedTime = new Date(branchData.lastBuild.queueTime);
+                                                                    durationSec = Math.floor((Date.now() - queuedTime.getTime()) / 1000);
+                                                                    console.log("--------------------------------------------------");
+                                                                    console.log(index + " - Branch " + branchData.branch.name + " - latest build is queued (status - " + branchData.lastBuild.status + ") for " + durationSec + " seconds. Links to build logs will be available after start of the build.");
+                                                                    console.log("--------------------------------------------------");
+                                                                    break;
+                                                                default:
+                                                                    //console.log("Status - " + branchData.lastBuild.status);
+                                                                    //console.log(responce.data.uri);
+                                                                    startTime = new Date(branchData.lastBuild.startTime);
+                                                                    finishTime = new Date(branchData.lastBuild.finishTime);
+                                                                    durationSec = Math.floor((finishTime.getTime() - startTime.getTime()) / 1000);
+                                                                    console.log("--------------------------------------------------");
+                                                                    console.log(index + " - Branch " + branchData.branch.name + " - latest build was " + branchData.lastBuild.status + " in " + durationSec + " seconds. Links to build logs: " + responce.data.uri + ".");
+                                                                    console.log("--------------------------------------------------");
+                                                                    break;
+                                                            }
+                                                        })["catch"](function (error) {
+                                                            if (branchData.lastBuild.status != "notStarted") {
+                                                                console.log("--------------------------------------------------");
+                                                                console.log("Link to download logs of build " + branchData.lastBuild.id + " in branch " + branchData.branch.name + " hasn't been received. Check message below for details.");
+                                                                console.log(error.toJSON().stack);
+                                                                console.log("--------------------------------------------------");
+                                                            }
+                                                        })];
+                                                case 1:
+                                                    _a.sent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    });
+                                }
+                                getLogsLink(ownerName, appName, token);
+                            });
+                        })["catch"](function (error) {
+                            console.log("Error with receiving list of branches has been occurred. Check message below for details.");
+                            console.log(error.toJSON().stack);
+                        })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+;
+getBuilds(ownerName, appName, token);
