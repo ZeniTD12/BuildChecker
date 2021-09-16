@@ -1,17 +1,11 @@
 #!/usr/bin/env node
 
 import axios from "axios";
+import * as readline from 'readline';
 
-//console.log( "Hello!" );
-const ownerName = "ZeniTD12"
-const appName = "My-New-Test-App"
-const token = "035be1cc469a116723cc20d78ba57a894cec1640"
-
-//https://gist.github.com/sgrebnov/6fae277243e96d2c27aaaf93362eae0f
-//https://openapi.appcenter.ms/#/build/builds_listToolsets
-//https://github.com/ZeniTD12/My-New-Test-App
-//https://appcenter.ms/users/ZeniTD12/apps/My-New-Test-App/build/branches
-//https://github.com/ZeniTD12/BuildChecker/blob/main/BuildChecker.ps1
+const ownerName = "" // enter name of app's owner
+const appName = ""   // enter name of app
+const token = ""     // enter token
 
 async function getBranches(ownerName:string, appName:string, token:string) {
     let urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
@@ -34,8 +28,6 @@ async function getBranches(ownerName:string, appName:string, token:string) {
         console.log(error.toJSON().stack);
     });
 };
-
-// getBranches(ownerName, appName, token);
 
 async function startBuilds(ownerName:string, appName:string, token:string) {
     let urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
@@ -84,8 +76,6 @@ async function startBuilds(ownerName:string, appName:string, token:string) {
     });
 };
 
-// startBuilds(ownerName, appName, token);
-
 async function getBuilds(ownerName:string, appName:string, token:string) {
     let urlBranches = "https://api.appcenter.ms/v0.1/apps/" + ownerName + "/" + appName + "/branches";
     let index = 0;
@@ -110,7 +100,6 @@ async function getBuilds(ownerName:string, appName:string, token:string) {
                     }
                 })
                 .then(function (responce) {
-                    // console.log(responce.data.uri);
                     let startTime = null;
                     let queuedTime = null;
                     let finishTime = null;
@@ -132,8 +121,6 @@ async function getBuilds(ownerName:string, appName:string, token:string) {
                             console.log("--------------------------------------------------");
                             break;
                         default:
-                            //console.log("Status - " + branchData.lastBuild.status);
-                            //console.log(responce.data.uri);
                             startTime = new Date(branchData.lastBuild.startTime);
                             finishTime = new Date(branchData.lastBuild.finishTime);
                             durationSec = Math.floor((finishTime.getTime() - startTime.getTime())/1000);
@@ -161,4 +148,27 @@ async function getBuilds(ownerName:string, appName:string, token:string) {
     });
 };
 
-// getBuilds(ownerName, appName, token);
+let rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('Enter number of required operation:\n1 - Get list of branches\n2 - Start new builds in branches\n3 - Get status of latest builds in branches\nother - Exit\n', (answer) => {
+    switch(answer.toLowerCase()) {
+        case '1':
+            console.log("Receiving list of branches ...");
+            getBranches(ownerName, appName, token);
+            break;
+        case '2':
+            console.log("Starting builds ...");
+            startBuilds(ownerName, appName, token);
+            break;
+        case '3':
+            console.log("Receiving state of builds ...");
+            getBuilds(ownerName, appName, token);
+            break;
+        default:
+            console.log('Exiting ...');
+    }
+    rl.close();
+});

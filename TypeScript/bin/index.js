@@ -38,15 +38,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var axios_1 = require("axios");
-//console.log( "Hello!" );
-var ownerName = "ZeniTD12";
-var appName = "My-New-Test-App";
-var token = "035be1cc469a116723cc20d78ba57a894cec1640";
-//https://gist.github.com/sgrebnov/6fae277243e96d2c27aaaf93362eae0f
-//https://openapi.appcenter.ms/#/build/builds_listToolsets
-//https://github.com/ZeniTD12/My-New-Test-App
-//https://appcenter.ms/users/ZeniTD12/apps/My-New-Test-App/build/branches
-//https://github.com/ZeniTD12/BuildChecker/blob/main/BuildChecker.ps1
+var readline = require("readline");
+var ownerName = ""; // enter name of app's owner
+var appName = ""; // enter name of app
+var token = ""; // enter token
 function getBranches(ownerName, appName, token) {
     return __awaiter(this, void 0, void 0, function () {
         var urlBranches;
@@ -79,7 +74,6 @@ function getBranches(ownerName, appName, token) {
     });
 }
 ;
-// getBranches(ownerName, appName, token);
 function startBuilds(ownerName, appName, token) {
     return __awaiter(this, void 0, void 0, function () {
         var urlBranches;
@@ -153,7 +147,6 @@ function startBuilds(ownerName, appName, token) {
     });
 }
 ;
-// startBuilds(ownerName, appName, token);
 function getBuilds(ownerName, appName, token) {
     return __awaiter(this, void 0, void 0, function () {
         var urlBranches, index;
@@ -188,7 +181,6 @@ function getBuilds(ownerName, appName, token) {
                                                             }
                                                         })
                                                             .then(function (responce) {
-                                                            // console.log(responce.data.uri);
                                                             var startTime = null;
                                                             var queuedTime = null;
                                                             var finishTime = null;
@@ -210,8 +202,6 @@ function getBuilds(ownerName, appName, token) {
                                                                     console.log("--------------------------------------------------");
                                                                     break;
                                                                 default:
-                                                                    //console.log("Status - " + branchData.lastBuild.status);
-                                                                    //console.log(responce.data.uri);
                                                                     startTime = new Date(branchData.lastBuild.startTime);
                                                                     finishTime = new Date(branchData.lastBuild.finishTime);
                                                                     durationSec = Math.floor((finishTime.getTime() - startTime.getTime()) / 1000);
@@ -249,4 +239,26 @@ function getBuilds(ownerName, appName, token) {
     });
 }
 ;
-getBuilds(ownerName, appName, token);
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+rl.question('Enter number of required operation:\n1 - Get list of branches\n2 - Start new builds in branches\n3 - Get status of latest builds in branches\nother - Exit\n', function (answer) {
+    switch (answer.toLowerCase()) {
+        case '1':
+            console.log("Receiving list of branches ...");
+            getBranches(ownerName, appName, token);
+            break;
+        case '2':
+            console.log("Starting builds ...");
+            startBuilds(ownerName, appName, token);
+            break;
+        case '3':
+            console.log("Receiving state of builds ...");
+            getBuilds(ownerName, appName, token);
+            break;
+        default:
+            console.log('Exiting ...');
+    }
+    rl.close();
+});
