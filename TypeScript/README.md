@@ -1,0 +1,3 @@
+# BuildChecker - TypeScript
+
+It's under construction now ...

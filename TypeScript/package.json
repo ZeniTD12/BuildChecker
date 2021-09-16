@@ -1,0 +1,23 @@
+{
+  "name": "buildcheckerts",
+  "version": "1.0.0",
+  "description": "Build Checker App",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Test command\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZeniTD12/BuildChecker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZeniTD12/BuildChecker/issues"
+  },
+  "homepage": "https://github.com/ZeniTD12/BuildChecker#readme",
+  "dependencies": {
+    "@types/node": "^16.9.1",
+    "axios": "^0.21.4"
+  }
+}

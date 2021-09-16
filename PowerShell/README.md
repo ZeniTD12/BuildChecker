@@ -1,4 +1,4 @@
-# BuildChecker
+# BuildChecker - PowerShell
 
 The tool has 2 features:
 - returns list of branches in App and status of latest builds in the branches;
